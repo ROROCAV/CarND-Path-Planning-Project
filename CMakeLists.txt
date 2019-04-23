@@ -4,22 +4,30 @@ cmake_minimum_required (VERSION 3.5)
 
 add_definitions(-std=c++11)
 
+find_package( Eigen3 REQUIRED )
+INCLUDE_DIRECTORIES(${EIGEN3_INCLUDE_DIR})
+
+
 set(CXX_FLAGS "-Wall")
 set(CMAKE_CXX_FLAGS, "${CXX_FLAGS}")
 
-set(sources src/main.cpp)
-
-
-if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 
 include_directories(/usr/local/include)
 include_directories(/usr/local/opt/openssl/include)
 link_directories(/usr/local/lib)
 link_directories(/usr/local/opt/openssl/lib)
 link_directories(/usr/local/Cellar/libuv/1.11.0/lib)
+include_directories(src src/planner/include)
 
-endif(${CMAKE_SYSTEM_NAME} MATCHES "Darwin") 
 
+
+set(sources src/main.cpp
+            src/planner/src/trajectory/Generator.cpp
+            src/planner/src/struct/WayPoint.cpp
+            src/planner/src/struct/Trajectory.cpp
+            src/planner/src/struct/Ego.cpp)
 
 add_executable(path_planning ${sources})
 

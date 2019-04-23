@@ -3,10 +3,17 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "Eigen-3.3/Eigen/Core"
-#include "Eigen-3.3/Eigen/QR"
-#include "helpers.h"
+#include "Eigen/Core"
+#include "Eigen/QR"
+#include "common/helpers.h"
 #include "json.hpp"
+
+
+#include "trajectory/Generator.h"
+#include "struct/WayPoints.h"
+#include "struct/Trajectory.h"
+#include "struct/Ego.h"
+
 
 // for convenience
 using nlohmann::json;
@@ -97,7 +104,11 @@ int main() {
            * TODO: define a path made up of (x,y) points that the car will visit
            *   sequentially every .02 seconds
            */
-
+          //TODO: realize your code here.
+          Ego ego(car_x, car_y, car_yaw, car_speed, car_s, car_d);
+          Trajectory traj_utm(previous_path_x, previous_path_y);
+          Generator gen;
+          gen.generate(previous_path_x, previous_path_y, car_x, car_y, car_yaw, sensor_fusion, next_x_vals, next_y_vals);
 
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
