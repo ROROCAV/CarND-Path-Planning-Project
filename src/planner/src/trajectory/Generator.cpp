@@ -50,11 +50,11 @@ void Generator::example(const vector<double>& previous_path_x, const vector<doub
     }
 }
 
-void Generator::laneKeeping(Trajectory pre_traj_utm, Ego ego, const vector<vector<double> >& vehicles,
+void Generator::laneKeeping(Trajectory pre_traj_utm, Ego* ego, const vector<vector<double> >& vehicles,
                             vector<double>& next_x, vector<double>& next_y) {
-    double s = ego.poFrenet()[0];
-    double d = ego.poFrenet()[1];
-    double s_dot = ego.velocity();
+    double s = ego->poFrenet()[0];
+    double d = ego->poFrenet()[1];
+    double s_dot = ego->velocity();
     //Eigen::Vector3d s_start(s, )
 
     int path_size = pre_traj_utm.length();//上一次规划的路劲剩下没跑的长度

@@ -6,6 +6,8 @@
 #include "json.hpp"
 
 #include "trajectory/Generator.h"
+#include "predictor/Predictor.h"
+
 #include "struct/WayPoints.h"
 #include "struct/Trajectory.h"
 #include "struct/Ego.h"
@@ -15,6 +17,11 @@
 using nlohmann::json;
 using std::string;
 using std::vector;
+
+Ego* ego = nullptr;
+Map* map = nullptr;
+Predictor* predictor = nullptr;
+Generator* generator = nullptr;
 
 int main() {
   uWS::Hub h;
@@ -52,6 +59,13 @@ int main() {
     map_waypoints_dx.push_back(d_x);
     map_waypoints_dy.push_back(d_y);
   }
+
+  //初始化所有对象
+  ego = new Ego(0, 0, 0, 0, 0, 0);
+  map = new Map(map_waypoints_x, map_waypoints_y, map_waypoints_s, map_waypoints_dx, map_waypoints_dy);
+  predictor = new Predictor(map);
+  generator = new Generator(map);
+
 
   h.onMessage([&map_waypoints_x,&map_waypoints_y,&map_waypoints_s,
                &map_waypoints_dx,&map_waypoints_dy]
@@ -101,10 +115,10 @@ int main() {
            *   sequentially every .02 seconds
            */
           //TODO: realize your code here.
-          Ego ego(car_x, car_y, car_yaw, car_speed, car_s, car_d);
-          Trajectory traj_utm(previous_path_x, previous_path_y);
-          Generator gen;
-          gen.generate(previous_path_x, previous_path_y, car_x, car_y, car_yaw, sensor_fusion, next_x_vals, next_y_vals);
+          ego->updateState(car_x, car_y, car_yaw, car_speed, car_s, car_d);
+          Trajectory pre_traj_utm(previous_path_x, previous_path_y);
+          //generator->laneKeeping(pre_traj_utm, ego, sensor_fusion, next_x_vals, next_y_vals);
+          generator->example(previous_path_x, previous_path_y, car_x, car_y, car_yaw, sensor_fusion, next_x_vals, next_y_vals);
 
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
