@@ -1,13 +1,9 @@
 #include <uWS/uWS.h>
 #include <fstream>
-#include <iostream>
-#include <string>
-#include <vector>
-#include "Eigen/Core"
-#include "Eigen/QR"
+
+#include "common/common.h"
 #include "common/helpers.h"
 #include "json.hpp"
-
 
 #include "trajectory/Generator.h"
 #include "struct/WayPoints.h"

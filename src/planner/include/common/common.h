@@ -5,9 +5,11 @@
 #ifndef PATH_PLANNING_COMMON_H
 #define PATH_PLANNING_COMMON_H
 
-#include "iostream"
-#include "vector"
+#include <iostream>
+#include <vector>
+#include <string>
 #include <Eigen/Core>
+#include <Eigen/QR>
 
 using std::cout;
 using std::cerr;
