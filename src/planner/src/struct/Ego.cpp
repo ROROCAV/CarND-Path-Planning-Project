@@ -23,12 +23,12 @@ Eigen::Vector2d Ego::poFrenet() {
     return Eigen::Vector2d(s_, d_);
 }
 
-void Ego::updateState(double x, double y, double yaw, double s, double d){
+void Ego::updateState(double x, double y, double yaw, double v, double s, double d){
     x_ = x;
     y_ = y;
     yaw_ = yaw;
     s_ = s;
     d_ = d;
-
-    acc_ =
+    v_ = v;
+    //acc_ =
 }

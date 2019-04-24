@@ -3,11 +3,11 @@
 //
 #include "trajectory/Generator.h"
 
-Generator::Generator(){}
+Generator::Generator(Map* map): map_(map) {}
 
 Generator::~Generator(){}
 
-void Generator::generate(const vector<double>& previous_path_x, const vector<double>& previous_path_y, double car_x, double car_y,
+void Generator::example(const vector<double>& previous_path_x, const vector<double>& previous_path_y, double car_x, double car_y,
               double car_yaw, const vector<vector<double> >& vehicles, vector<double>& next_x_vals, vector<double>& next_y_vals){
     double pos_x;
     double pos_y;
@@ -50,8 +50,8 @@ void Generator::generate(const vector<double>& previous_path_x, const vector<dou
     }
 }
 
-void Generator::laneKeeping(Trajectory pre_traj_utm, Ego ego, const vector<vector<double> > &vehicles,
-                            Trajectory next_traj_utm) {
+void Generator::laneKeeping(Trajectory pre_traj_utm, Ego ego, const vector<vector<double> >& vehicles,
+                            vector<double>& next_x, vector<double>& next_y) {
     double s = ego.poFrenet()[0];
     double d = ego.poFrenet()[1];
     double s_dot = ego.velocity();
