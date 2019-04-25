@@ -37,3 +37,19 @@ void Trajectory::computeKappa() {
         val_[i].setKappa(k);
     }
 }
+
+vector<double> Trajectory::xs() {
+    vector<double> xs;
+    for(auto pt:val_){
+        xs.emplace_back(pt.x());
+    }
+    return xs;
+}
+
+vector<double> Trajectory::ys() {
+    vector<double> ys;
+    for(auto pt:val_){
+        ys.emplace_back(pt.y());
+    }
+    return ys;
+}

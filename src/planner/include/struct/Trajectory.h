@@ -19,6 +19,8 @@ public:
     void setCost(double cost);
     void computeKappa();
     inline vector<WayPoint> val(){ return val_; }
+    vector<double> xs();
+    vector<double> ys();
 
 private:
     vector<WayPoint> val_;
