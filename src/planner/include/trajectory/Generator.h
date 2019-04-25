@@ -10,14 +10,15 @@
 #include "struct/Ego.h"
 #include "struct/Trajectory.h"
 #include "struct/Map.h"
+#include "common/spline.h"
 
 class Generator{
 public:
     Generator(Map* map);
     ~Generator();
 
-    void example(const vector<double>& previous_path_x, const vector<double>& previous_path_y, double car_x, double car_y,
-                  double car_yaw, const vector<vector<double> >& vehicles, vector<double>& next_x_vals, vector<double>& next_y_vals);
+    void example(Trajectory pre_traj_utm, Ego* ego, const vector<vector<double> >& vehicles,
+                 vector<double>& next_x, vector<double>& next_y);
 
     void laneKeeping(Trajectory pre_traj_utm, Ego* ego, const vector<vector<double> >& vehicles,
                      vector<double>& next_x, vector<double>& next_y);

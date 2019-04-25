@@ -12,6 +12,12 @@ public:
     WayPoint(double x, double y);
     ~WayPoint();
 
+    inline double x(){ return x_; }
+    inline double y(){ return y_; }
+    inline double s(){ return s_; }
+    inline double d(){ return d_; }
+    inline double k(){ return kappa_; }
+
     void setX(double x);
     void setY(double y);
     void setS(double s);

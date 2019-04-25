@@ -85,24 +85,26 @@ inline int NextWaypoint(double x, double y, double theta, const vector<double> &
 inline vector<double> getFrenet(double x, double y, double theta,
                          const vector<double> &maps_x, 
                          const vector<double> &maps_y) {
-  int next_wp = NextWaypoint(x,y, theta, maps_x,maps_y);
+  int next_wp = NextWaypoint(x,y, theta, maps_x,maps_y);//地图中，(x,y,theta)后面的路点的UTM
 
   int prev_wp;
   prev_wp = next_wp-1;
   if (next_wp == 0) {
     prev_wp  = maps_x.size()-1;
   }
-
+  //前一个点和后一个点的连线L1
   double n_x = maps_x[next_wp]-maps_x[prev_wp];
   double n_y = maps_y[next_wp]-maps_y[prev_wp];
+  //(x, y)和前一个点的连线L2
   double x_x = x - maps_x[prev_wp];
   double x_y = y - maps_y[prev_wp];
 
+  //把L2投影到L1
   // find the projection of x onto n
   double proj_norm = (x_x*n_x+x_y*n_y)/(n_x*n_x+n_y*n_y);
   double proj_x = proj_norm*n_x;
   double proj_y = proj_norm*n_y;
-
+  //投影的垂线就是d
   double frenet_d = distance(x_x,x_y,proj_x,proj_y);
 
   //see if d value is positive or negative by comparing it to a center point

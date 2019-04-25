@@ -60,6 +60,11 @@ int main() {
     map_waypoints_dy.push_back(d_y);
   }
 
+   vector<double> xy = getXY(140, 6, map_waypoints_s, map_waypoints_x, map_waypoints_y);
+   //cout<<"x: "<<xy[0]<<" y: "<<xy[1]<<endl;
+   vector<double> sd = getFrenet(927.1323, 1134.897, 0.5*pi(), map_waypoints_x, map_waypoints_y);
+   cout<<"s: "<<sd[0]<<" d: "<<sd[1]<<endl;
+
   //初始化所有对象
   ego = new Ego(0, 0, 0, 0, 0, 0);
   map = new Map(map_waypoints_x, map_waypoints_y, map_waypoints_s, map_waypoints_dx, map_waypoints_dy);
@@ -118,7 +123,7 @@ int main() {
           ego->updateState(car_x, car_y, car_yaw, car_speed, car_s, car_d);
           Trajectory pre_traj_utm(previous_path_x, previous_path_y);
           //generator->laneKeeping(pre_traj_utm, ego, sensor_fusion, next_x_vals, next_y_vals);
-          generator->example(previous_path_x, previous_path_y, car_x, car_y, car_yaw, sensor_fusion, next_x_vals, next_y_vals);
+          generator->example(pre_traj_utm, ego, sensor_fusion, next_x_vals, next_y_vals);
 
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
