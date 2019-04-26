@@ -3,19 +3,15 @@
 //
 #include "trajectory/Generator.h"
 
-Generator::Generator(Map* map): map_(map) {}
+Generator::Generator(Map* map): map_(map), ref_vel_(0) {
+    ref_lane_ = 1;
+}
 
 Generator::~Generator(){}
 
 void Generator::example(Trajectory pre_traj_utm, Ego* ego, const vector<vector<double> >& vehicles,
                         vector<double>& next_x, vector<double>& next_y){
-    next_x.clear();
-    next_y.clear();
-    cout<<"Running1..."<<endl;
-    int lane = 1;
-    double ref_vel = 49.5; //mph
-    Trajectory sparse; //稀疏的导航路点
-
+    int pre_path_size = pre_traj_utm.points.size();
     double car_s = ego->poFrenet()[0];
     double car_d = ego->poFrenet()[1];
     double car_x = ego->poUTM()[0];
@@ -24,46 +20,81 @@ void Generator::example(Trajectory pre_traj_utm, Ego* ego, const vector<vector<d
     double ref_x = car_x;
     double ref_y = car_y;
     double ref_yaw = car_yaw;
-    int pre_path_size = pre_traj_utm.length();
+    next_x.clear();
+    next_y.clear();
 
+    //处理其他车辆
+    if(pre_path_size > 0)
+        car_s = pre_traj_utm.points.back().s;
+
+    bool too_close = false;
+    for(int i = 0; i < vehicles.size(); i++){
+        //car is in my lane
+        float d = vehicles[i][6];
+        if(d < (2+4*ref_lane_+2) && d > (2+4*ref_lane_-2)){
+            double vx = vehicles[i][3];
+            double vy = vehicles[i][4];
+            double check_speed = sqrt(vx*vx+vy*vy);
+            double check_car_s = vehicles[i][5];
+            //预测一段时间后车辆前进的距离
+            check_car_s += (double)(pre_path_size*0.02*check_speed);
+
+            if((check_car_s > car_s) && (check_car_s - car_s) < 30){
+                //减减速或者换道
+                //ref_vel_ = 29.5;//mph
+                too_close = true;
+            }
+        }
+    }
+
+    //渐进式的速度加减
+    if(too_close){
+        ref_vel_ -= .224;//.224是计算出的每0.02秒最大加速度
+    }
+    else if(ref_vel_ < 49.5){
+        ref_vel_ += .224;
+    }
+
+    Trajectory sparse; //稀疏的导航路点
     //如果剩下的点不多了，从车当前位置开始规划
     if(pre_path_size < 2){
         double pre_car_x = car_x - cos(car_yaw);
-        double pre_car_y = car_y - cos(car_yaw);
+        double pre_car_y = car_y - sin(car_yaw);
 
-        sparse.insertWayPoint(WayPoint(pre_car_x, pre_car_y));
-        sparse.insertWayPoint(WayPoint(car_x, car_y));
+        sparse.points.emplace_back(WayPoint(pre_car_x, pre_car_y));
+        sparse.points.emplace_back(WayPoint(car_x, car_y));
     }
     //用前一条路的终点作为本次的起点
     else{
-        ref_x = pre_traj_utm.val().back().x();
-        ref_y = pre_traj_utm.val().back().y();
+        ref_x = pre_traj_utm.xs().back();
+        ref_y = pre_traj_utm.ys().back();
 
-        double pre_ref_x = pre_traj_utm.val()[pre_path_size - 2].x();
-        double pre_ref_y = pre_traj_utm.val()[pre_path_size - 2].y();
+        double pre_ref_x = pre_traj_utm.xs()[pre_path_size - 2];
+        double pre_ref_y = pre_traj_utm.ys()[pre_path_size - 2];
         ref_yaw = atan2(ref_y - pre_ref_y, ref_x - pre_ref_x);
 
-        sparse.insertWayPoint(WayPoint(pre_ref_x, pre_ref_y));
-        sparse.insertWayPoint(WayPoint(ref_x, ref_y));
+        sparse.points.emplace_back(WayPoint(pre_ref_x, pre_ref_y));
+        sparse.points.emplace_back(WayPoint(ref_x, ref_y));
     }
 
     //在Frenet坐标系下，从起点开始，每30m设置一个导航路点
-    vector<double> next_wp0 = getXY(car_s + 30, (2+4*lane), map_->s(), map_->x(), map_->y());
-    vector<double> next_wp1 = getXY(car_s + 60, (2+4*lane), map_->s(), map_->x(), map_->y());
-    vector<double> next_wp2 = getXY(car_s + 60, (2+4*lane), map_->s(), map_->x(), map_->y());
 
-    sparse.insertWayPoint(WayPoint(next_wp0[0], next_wp0[1]));
-    sparse.insertWayPoint(WayPoint(next_wp1[0], next_wp1[1]));
-    sparse.insertWayPoint(WayPoint(next_wp2[0], next_wp2[1]));
+    vector<double> next_wp0 = map_->getXY(car_s + 30, (2+4*ref_lane_));
+    vector<double> next_wp1 = map_->getXY(car_s + 60, (2+4*ref_lane_));
+    vector<double> next_wp2 = map_->getXY(car_s + 90, (2+4*ref_lane_));
+
+    sparse.points.emplace_back(WayPoint(next_wp0[0], next_wp0[1]));
+    sparse.points.emplace_back(WayPoint(next_wp1[0], next_wp1[1]));
+    sparse.points.emplace_back(WayPoint(next_wp2[0], next_wp2[1]));
 
     //确保汽车或者是前路径的最后一个点的起始值和起始角度为0，后面有用
-    for(auto& wp : sparse.val()){
+    for(auto& wp : sparse.points){
         //shift car reference angle to 0 degrees.
-        double shift_x = wp.x() - ref_x;
-        double shift_y = wp.y() - ref_y;
+        double shift_x = wp.x - ref_x;
+        double shift_y = wp.y - ref_y;
 
-        wp.setX(shift_x*cos(0-ref_yaw)-shift_y*sin(0-ref_yaw));
-        wp.setY(shift_x*sin(0-ref_yaw)+shift_y*cos(0-ref_yaw));
+        wp.x = shift_x*cos(0-ref_yaw)-shift_y*sin(0-ref_yaw);
+        wp.y = shift_x*sin(0-ref_yaw)+shift_y*cos(0-ref_yaw);
     }
 
     //create a spline
@@ -72,8 +103,8 @@ void Generator::example(Trajectory pre_traj_utm, Ego* ego, const vector<vector<d
 
     //将剩下的点放入下一次的轨迹
     Trajectory next_traj_utm;
-    for(auto wp : pre_traj_utm.val())
-        next_traj_utm.insertWayPoint(wp);
+    for(auto wp : pre_traj_utm.points)
+        next_traj_utm.points.emplace_back(wp);
 
     //计算如何控制spline上采样点的分辨率使得我们按照期望速度行驶
     double target_x = 30;
@@ -85,7 +116,7 @@ void Generator::example(Trajectory pre_traj_utm, Ego* ego, const vector<vector<d
     for(int i = 0; i < 50 - pre_path_size; i++){
         //以汽车或者是前路径的最后一个点的位置和角度为坐标原点和x轴方向
         //在spline曲线上采样等间距点，保证速度不大于期望速度
-        double N = (target_dist/(0.02*ref_vel/2.24));
+        double N = (target_dist/(0.02*ref_vel_/2.24));
         double x_point = x_add_on+(target_x)/N;
         double y_point = s(x_point);
 
@@ -100,9 +131,8 @@ void Generator::example(Trajectory pre_traj_utm, Ego* ego, const vector<vector<d
         x_point += ref_x;
         y_point += ref_y;
 
-        next_traj_utm.insertWayPoint(WayPoint(x_point, y_point));
+        next_traj_utm.points.emplace_back(WayPoint(x_point, y_point));
     }
-    cout<<"Running2..."<<endl;
     next_x = next_traj_utm.xs();
     next_y = next_traj_utm.ys();
 }
@@ -115,7 +145,7 @@ void Generator::laneKeeping(Trajectory pre_traj_utm, Ego* ego, const vector<vect
     double s_dot = ego->velocity();
     //Eigen::Vector3d s_start(s, )
 
-    int path_size = pre_traj_utm.length();//上一次规划的路劲剩下没跑的长度
+    int path_size = pre_traj_utm.points.size();//上一次规划的路劲剩下没跑的长度
 
     //第一次规划
     if(path_size == 0){

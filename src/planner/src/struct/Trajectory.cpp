@@ -11,45 +11,36 @@ Trajectory::Trajectory(vector<double> x, vector<double> y){
         cerr<<"size of x and y are not equal!"<<endl;
         return ;
     }
-    val_.clear();
+    points.clear();
     for(int i = 0; i < x.size(); i++){
-        val_.emplace_back(WayPoint(x[i], y[i]));
+        points.emplace_back(WayPoint(x[i], y[i]));
     }
 }
 
 Trajectory::~Trajectory(){}
 
-void Trajectory::insertWayPoint(WayPoint pt) {
-    val_.emplace_back(pt);
-}
-
-void Trajectory::setCost(double cost) {
-    cost_ = cost;
-}
-
 void Trajectory::computeKappa() {
-    if(val_.size() < 4){
+    if(points.size() < 4){
         cerr<<"The trajectory is almost empty. No enough way points to compute kappa."<<endl;
     }
-    for(int i = 1; i < val_.size() - 1; i++){
+    for(int i = 1; i < points.size() - 1; i++){
         //TODO
         double k = 0.0;
-        val_[i].setKappa(k);
     }
 }
 
 vector<double> Trajectory::xs() {
     vector<double> xs;
-    for(auto pt:val_){
-        xs.emplace_back(pt.x());
+    for(auto pt:points){
+        xs.emplace_back(pt.x);
     }
     return xs;
 }
 
 vector<double> Trajectory::ys() {
     vector<double> ys;
-    for(auto pt:val_){
-        ys.emplace_back(pt.y());
+    for(auto pt:points){
+        ys.emplace_back(pt.y);
     }
     return ys;
 }

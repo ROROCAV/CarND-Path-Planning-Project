@@ -25,6 +25,8 @@ public:
 
 private:
     Map* map_;
+    double ref_vel_;
+    int ref_lane_;
 };
 
 #endif //PATH_PLANNING_GENERATOR_H

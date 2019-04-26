@@ -14,17 +14,13 @@ public:
     Trajectory(vector<double> x, vector<double> y);
     ~Trajectory();
 
-    inline int length(){return val_.size();}
-    void insertWayPoint(WayPoint pt);
-    void setCost(double cost);
     void computeKappa();
-    inline vector<WayPoint> val(){ return val_; }
+
     vector<double> xs();
     vector<double> ys();
 
-private:
-    vector<WayPoint> val_;
-    double cost_;
+    vector<WayPoint> points;
+    double cost;
 };
 
 

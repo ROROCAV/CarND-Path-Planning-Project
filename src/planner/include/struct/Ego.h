@@ -15,6 +15,7 @@ public:
     double velocity();
     Eigen::Vector2d poFrenet();
     void updateState(double x, double y, double yaw, double v, double s, double d);
+
 private:
     double x_;
     double y_;

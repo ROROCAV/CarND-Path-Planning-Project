@@ -83,7 +83,7 @@ inline int NextWaypoint(double x, double y, double theta, const vector<double> &
 
 // Transform from Cartesian x,y coordinates to Frenet s,d coordinates
 inline vector<double> getFrenet(double x, double y, double theta,
-                         const vector<double> &maps_x, 
+                         const vector<double> &maps_x,
                          const vector<double> &maps_y) {
   int next_wp = NextWaypoint(x,y, theta, maps_x,maps_y);//地图中，(x,y,theta)后面的路点的UTM
 
@@ -130,7 +130,7 @@ inline vector<double> getFrenet(double x, double y, double theta,
 
 // Transform from Frenet s,d coordinates to Cartesian x,y
 inline vector<double> getXY(double s, double d, const vector<double> &maps_s,
-                     const vector<double> &maps_x, 
+                     const vector<double> &maps_x,
                      const vector<double> &maps_y) {
   int prev_wp = -1;
 

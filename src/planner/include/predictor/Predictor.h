@@ -7,15 +7,20 @@
 
 #include "common/common.h"
 #include "struct/Map.h"
+#include "struct/Vehicle.h"
 
 class Predictor{
 public:
     Predictor(Map* map);
     ~Predictor();
 
-    vector<vector<double> > predict(vector<vector<double> >& vehicles);
+    void update(vector<vector<double> > sensor_fusion);
+
+    vector<vector<double> > predict();
 private:
     Map* map_;
+    vector<vector<Vehicle> > vehicles_;
+
 };
 
 
