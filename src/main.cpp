@@ -27,14 +27,13 @@ int main() {
   uWS::Hub h;
 
   // Waypoint map to read from
-  string map_file_ = "../data/highway_map.csv";
+  string map_file = "../data/highway_map.csv";
 
   //初始化所有对象
   ego = new Ego(0, 0, 0, 0, 0, 0);
-  map = new Map(map_file_);
-
+  map = new Map(map_file);
   generator = new Generator(map);
-  predictor = new Predictor(map);
+  predictor = new Predictor(map, 2);
 
   vector<double>* map_xs = map->x();
   vector<double>* map_ys = map->y();
@@ -83,10 +82,8 @@ int main() {
            */
           //TODO: realize your code here.
           ego->updateState(car_x, car_y, car_yaw, car_speed, car_s, car_d);
-          cout<<"00"<<endl;
           predictor->update(sensor_fusion);
           vector<vector<double> > vehicles = predictor->predict();
-          cout<<"11"<<endl;
 
           Trajectory pre_traj_utm(previous_path_x, previous_path_y);
           if(pre_traj_utm.points.size()){
@@ -94,7 +91,7 @@ int main() {
             pre_traj_utm.points.back().d = end_path_d;
           }
           //generator->laneKeeping(pre_traj_utm, ego, sensor_fusion, next_x_vals, next_y_vals);
-          generator->example(pre_traj_utm, ego, sensor_fusion, next_x_vals, next_y_vals);
+          generator->example(pre_traj_utm, ego, vehicles, next_x_vals, next_y_vals);
           json msgJson;
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;

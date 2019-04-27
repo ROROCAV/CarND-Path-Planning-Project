@@ -4,7 +4,7 @@
 
 #include "predictor/Predictor.h"
 
-Predictor::Predictor(Map *map): map_(map) {}
+Predictor::Predictor(Map *map, int life): map_(map), life_(life) {}
 
 Predictor::~Predictor() {}
 
@@ -22,6 +22,7 @@ vector<vector<double> > Predictor::predict() {
             predictions.emplace_back(map_->getXY(s, d));
         }
     }
+    return predictions;
 }
 
 void Predictor::update(vector<vector<double> > sensor_fusion) {
@@ -60,7 +61,7 @@ void Predictor::update(vector<vector<double> > sensor_fusion) {
     while(it1 != vehicles_.end()){
         vector<Vehicle>::iterator it2 = it1->begin();
         while (it2 != it1->end()){
-            if(it2->age > 5)
+            if(it2->age > life_)
                 it2 = it1->erase(it2);
             else
                 it2++;
@@ -71,10 +72,10 @@ void Predictor::update(vector<vector<double> > sensor_fusion) {
             it1++;
     }
     for(auto veh_t:vehicles_){
-        cout<<"--------vehcile "<<veh_t.back().id<<"--------"<<endl;
+        //cout<<"--------vehcile "<<veh_t.back().id<<"--------"<<endl;
         for(auto veh: veh_t){
-            cout<<"---"<<veh.age<<"";
+            //cout<<"---"<<veh.age<<"";
         }
-        cout<<"---"<<endl;
+        //cout<<"---"<<endl;
     }
 }

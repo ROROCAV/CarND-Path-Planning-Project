@@ -11,7 +11,7 @@
 
 class Predictor{
 public:
-    Predictor(Map* map);
+    Predictor(Map* map, int life);
     ~Predictor();
 
     void update(vector<vector<double> > sensor_fusion);
@@ -20,7 +20,7 @@ public:
 private:
     Map* map_;
     vector<vector<Vehicle> > vehicles_;
-
+    int life_;
 };
 
 
