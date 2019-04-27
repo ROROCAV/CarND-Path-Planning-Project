@@ -260,39 +260,24 @@ Trajectory Generator::inference(Trajectory pre_traj_utm, Ego* ego, int lane, dou
     double ref_y = car_y;
     double ref_yaw = car_yaw;
 
-    if(pre_path_size > 0)
-        car_s = pre_traj_utm.points.back().s;
-
     Trajectory sparse; //稀疏的导航路点
-    //如果剩下的点不多了，从车当前位置开始规划
-    if(pre_path_size < 2){
-        double pre_car_x = car_x - cos(car_yaw);
-        double pre_car_y = car_y - sin(car_yaw);
+    //每次都从车当前位置开始规划
 
-        sparse.points.emplace_back(WayPoint(pre_car_x, pre_car_y));
-        sparse.points.emplace_back(WayPoint(car_x, car_y));
-    }
-        //用前一条路的终点作为本次的起点
-    else{
-        ref_x = pre_traj_utm.xs().back();
-        ref_y = pre_traj_utm.ys().back();
-
-        double pre_ref_x = pre_traj_utm.xs()[pre_path_size - 2];
-        double pre_ref_y = pre_traj_utm.ys()[pre_path_size - 2];
-        ref_yaw = atan2(ref_y - pre_ref_y, ref_x - pre_ref_x);
-
-        sparse.points.emplace_back(WayPoint(pre_ref_x, pre_ref_y));
-        sparse.points.emplace_back(WayPoint(ref_x, ref_y));
-    }
+    double pre_car_x = car_x - cos(car_yaw);
+    double pre_car_y = car_y - sin(car_yaw);
+    sparse.points.emplace_back(WayPoint(pre_car_x, pre_car_y));
+    sparse.points.emplace_back(WayPoint(car_x, car_y));
 
     //在Frenet坐标系下，从起点开始，每30m设置一个导航路点
     vector<double> next_wp0 = map_->getXY(car_s + 30, (0.5*map_->width()+map_->width()*lane));
     vector<double> next_wp1 = map_->getXY(car_s + 60, (0.5*map_->width()+map_->width()*lane));
     vector<double> next_wp2 = map_->getXY(car_s + 90, (0.5*map_->width()+map_->width()*lane));
+    vector<double> next_wp3 = map_->getXY(car_s + 120, (0.5*map_->width()+map_->width()*lane));
 
     sparse.points.emplace_back(WayPoint(next_wp0[0], next_wp0[1]));
     sparse.points.emplace_back(WayPoint(next_wp1[0], next_wp1[1]));
     sparse.points.emplace_back(WayPoint(next_wp2[0], next_wp2[1]));
+    sparse.points.emplace_back(WayPoint(next_wp3[0], next_wp3[1]));
 
     //确保汽车或者是前路径的最后一个点的起始值和起始角度为0，后面有用
     for(auto& wp : sparse.points){
@@ -312,13 +297,14 @@ Trajectory Generator::inference(Trajectory pre_traj_utm, Ego* ego, int lane, dou
         next_traj_utm.points.emplace_back(wp);
 
     //计算如何控制spline上采样点的分辨率使得我们按照期望速度行驶
-    double target_x = 30;
+    double target_x = 100;
     double target_y = s(target_x);
     double target_dist = sqrt(target_x*target_x + target_y*target_y);
     double x_add_on = 0;
     for(int i = 0; i < 100 - pre_path_size; i++){
         //以汽车或者是前路径的最后一个点的位置和角度为坐标原点和x轴方向
         //在spline曲线上采样等间距点，保证速度不大于期望速度
+        //TODO: 点间距时间为1秒
         double N = (target_dist/(0.02*ref_vel/2.24));
         double x_point = x_add_on+(target_x)/N;
         double y_point = s(x_point);
