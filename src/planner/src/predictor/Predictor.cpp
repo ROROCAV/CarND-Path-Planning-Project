@@ -8,9 +8,10 @@ Predictor::Predictor(Map *map, int life): map_(map), life_(life) {}
 
 Predictor::~Predictor() {}
 
-vector<vector<double> > Predictor::predict() {
-    vector<vector<double> > predictions;
+vector<vector<vector<double> > > Predictor::predict() {
+    vector<vector<vector<double> > > predictions;
     for(auto veh_t : vehicles_){
+        vector<vector<double> > v_pre;
         double vx = veh_t.back().v_x;
         double vy = veh_t.back().v_y;
         double velocity = sqrt(vx*vx+vy*vy);
@@ -19,8 +20,9 @@ vector<vector<double> > Predictor::predict() {
         //向后推50个时刻，间隔0.02秒
         for(int t = 0; t < 50; t++){
             s += velocity * 0.02;
-            predictions.emplace_back(map_->getXY(s, d));
+            v_pre.emplace_back(map_->getXY(s, d));
         }
+        predictions.emplace_back(v_pre);
     }
     return predictions;
 }

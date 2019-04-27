@@ -6,6 +6,8 @@
 
 Ego::Ego(double x, double y, double yaw, double v, double s, double d): x_(x), y_(y), yaw_(yaw), s_(s), d_(d) {
     acc_ = 0;
+    length_ = 3;
+    width_ = 2;
 
 }
 

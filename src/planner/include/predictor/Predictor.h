@@ -16,7 +16,7 @@ public:
 
     void update(vector<vector<double> > sensor_fusion);
 
-    vector<vector<double> > predict();
+    vector<vector<vector<double> > > predict();
 private:
     Map* map_;
     vector<vector<Vehicle> > vehicles_;

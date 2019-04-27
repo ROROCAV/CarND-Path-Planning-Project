@@ -15,6 +15,7 @@ public:
     double velocity();
     Eigen::Vector2d poFrenet();
     void updateState(double x, double y, double yaw, double v, double s, double d);
+    inline Eigen::Vector2d shape(){return Eigen::Vector2d(length_, width_);}
 
 private:
     double x_;
@@ -24,6 +25,9 @@ private:
     double s_;
     double d_;
     double acc_;
+
+    double length_;
+    double width_;
 };
 
 #endif //PATH_PLANNING_EGO_H

@@ -11,6 +11,7 @@
 #include "struct/Trajectory.h"
 #include "struct/Map.h"
 #include "common/spline.h"
+#include "common/Collision.h"
 
 class Generator{
 public:
@@ -20,8 +21,10 @@ public:
     void example(Trajectory pre_traj_utm, Ego* ego, const vector<vector<double> >& vehicles,
                  vector<double>& next_x, vector<double>& next_y);
 
-    void laneKeeping(Trajectory pre_traj_utm, Ego* ego, const vector<vector<double> >& vehicles,
+    void laneKeeping(Trajectory pre_traj_utm, Ego* ego, const vector<vector<vector<double> > >& predictions,
                      vector<double>& next_x, vector<double>& next_y);
+
+    vector<vector<double> > inference(Trajectory pre_traj_utm, Ego* ego, double vel, int lane);
 
 private:
     Map* map_;

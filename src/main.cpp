@@ -83,15 +83,15 @@ int main() {
           //TODO: realize your code here.
           ego->updateState(car_x, car_y, car_yaw, car_speed, car_s, car_d);
           predictor->update(sensor_fusion);
-          vector<vector<double> > vehicles = predictor->predict();
+          vector<vector<vector<double> > > prediictions = predictor->predict();
 
           Trajectory pre_traj_utm(previous_path_x, previous_path_y);
           if(pre_traj_utm.points.size()){
             pre_traj_utm.points.back().s = end_path_s;
             pre_traj_utm.points.back().d = end_path_d;
           }
-          //generator->laneKeeping(pre_traj_utm, ego, sensor_fusion, next_x_vals, next_y_vals);
-          generator->example(pre_traj_utm, ego, vehicles, next_x_vals, next_y_vals);
+          generator->laneKeeping(pre_traj_utm, ego, prediictions, next_x_vals, next_y_vals);
+          //generator->example(pre_traj_utm, ego, sensor_fusion, next_x_vals, next_y_vals);
           json msgJson;
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
