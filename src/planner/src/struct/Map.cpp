@@ -5,10 +5,12 @@
 #include "struct/Map.h"
 Map::Map(string map_file){
     loadMap(map_file);
+    width_ = 4;
 }
 
 Map::Map(vector<double> x, vector<double> y, vector<double> s, vector<double> dx, vector<double> dy):
 x_(x), y_(y), s_(s), dx_(dx), dy_(dy){
+    width_ = 4;
 }
 
 Map::~Map() {}
@@ -103,4 +105,8 @@ vector<double> Map::getSD(double x, double y, double theta) {
     frenet_s += distance(0,0,proj_x,proj_y);
 
     return {frenet_s,frenet_d};
+}
+
+int Map::getCurrentLane(double d) {
+    return floor(d /width_);
 }

@@ -18,7 +18,7 @@ vector<vector<vector<double> > > Predictor::predict() {
         double s = veh_t.back().s;
         double d = veh_t.back().d;
         //向后推50个时刻，间隔0.02秒
-        for(int t = 0; t < 50; t++){
+        for(int t = 0; t < 100; t++){
             s += velocity * 0.02;
             v_pre.emplace_back(map_->getXY(s, d));
         }

@@ -7,8 +7,6 @@
 
 #include "common/common.h"
 
-enum state{ID=0, X=1, Y=2, VX=3, VY=4, S=5, D=6};
-
 class Vehicle{
 public:
     Vehicle();

@@ -7,7 +7,15 @@
 
 #include "common.h"
 
-inline pair<int, double> collisionDetect(const vector<vector<double> >& ego_pre, const vector<vector<vector<double> > >& predictions, const Ego* ego){
+inline pair<int, double> collisionDetect(const Trajectory& ego_infer, const vector<vector<vector<double> > >& predictions, Ego* ego){
+    vector<vector<double> > ego_pre;
+    for(auto wp : ego_infer.points){
+        vector<double> pt;
+        pt.emplace_back(wp.x);
+        pt.emplace_back(wp.y);
+        ego_pre.emplace_back(pt);
+    }
+
     pair<int, double> collision;
     vector<pair<int, double> > possibles;
     //遍历所有车辆
@@ -24,19 +32,25 @@ inline pair<int, double> collisionDetect(const vector<vector<double> >& ego_pre,
             double veh_y = veh_t[i][1];
             //碰撞发生
             if(distance(ego_x, ego_y, veh_x, veh_y) < ego->shape()[0]){
-                collision[0] = i;
-                collision[1] = sqrt((ego_x-veh_x)*(ego_x-veh_x) +
+                collision.first = i;
+                collision.second = sqrt((ego_x-veh_x)*(ego_x-veh_x) +
                                     (ego_y-veh_y)*(ego_y-veh_y));
                 possibles.emplace_back(collision);
             }
         }
     }
     //寻找最近的碰撞点
-    sort(possibles.begin(), possibles.end(),
-            [](const pair<int, double>& a, const pair<int, double>& b)
-            { return a[0] < a[1]; })
-
-    pair<int, double> result = possibles.front();
+    pair<int, double> result;
+    if(possibles.empty()){
+        result.first = MY_INT_MAX;
+        result.second = MY_DOUBLE_MAX;
+    }
+    else{
+        sort(possibles.begin(), possibles.end(),
+             [](const pair<int, double>& a, const pair<int, double>& b)
+             { return a.first < b.first; });
+        result = possibles.front();
+    }
     return result;
 }
 

@@ -21,9 +21,11 @@ public:
     inline vector<double>* s(){ return &s_;}
     inline vector<double>* dx(){ return &dx_;}
     inline vector<double>* dy(){ return &dy_;}
+    inline double width(){return width_;}
 
     vector<double> getXY(double s, double d);
     vector<double> getSD(double x, double y, double theta);
+    int getCurrentLane(double d);
 
 private:
     vector<double> x_;
@@ -31,6 +33,8 @@ private:
     vector<double> s_;
     vector<double> dx_;
     vector<double> dy_;
+
+    double width_;
 };
 
 #endif //PATH_PLANNING_MAP_H
