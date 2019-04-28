@@ -12,6 +12,7 @@
 #include "struct/Map.h"
 #include "common/spline.h"
 #include "common/Collision.h"
+#include "trajectory/helper.h"
 
 class Generator{
 public:

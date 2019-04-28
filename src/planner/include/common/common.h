@@ -11,6 +11,7 @@
 #include <Eigen/Core>
 #include <Eigen/QR>
 #include "helpers.h"
+#include "math.h"
 
 using std::cout;
 using std::cerr;

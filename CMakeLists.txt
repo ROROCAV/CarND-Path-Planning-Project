@@ -27,7 +27,7 @@ set(sources src/main.cpp
             src/planner/src/trajectory/Generator.cpp
             src/planner/src/struct/WayPoint.cpp
             src/planner/src/struct/Trajectory.cpp
-            src/planner/src/struct/Ego.cpp src/planner/src/struct/Map.cpp src/planner/src/predictor/Predictor.cpp src/planner/src/struct/Vehicle.cpp)
+            src/planner/src/struct/Ego.cpp src/planner/src/struct/Map.cpp src/planner/src/predictor/Predictor.cpp src/planner/src/struct/Vehicle.cpp src/planner/src/trajectory/helper.cpp)
 
 add_executable(path_planning ${sources})
 
