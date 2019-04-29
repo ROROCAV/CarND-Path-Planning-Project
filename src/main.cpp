@@ -83,7 +83,7 @@ int main() {
           //TODO: realize your code here.
           ego->updateState(car_x, car_y, car_yaw, car_speed, car_s, car_d);
           predictor->update(sensor_fusion);
-          vector<vector<vector<double> > > prediictions = predictor->predict();
+          vector<Vehicle>* prediictions = predictor->predict();
 
           Trajectory pre_traj_utm(previous_path_x, previous_path_y);
           if(pre_traj_utm.points.size()){

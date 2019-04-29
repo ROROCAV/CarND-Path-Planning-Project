@@ -10,6 +10,7 @@
 #include "struct/Ego.h"
 #include "struct/Trajectory.h"
 #include "struct/Map.h"
+#include "struct/Vehicle.h"
 #include "common/spline.h"
 #include "common/Collision.h"
 #include "trajectory/helper.h"
@@ -22,7 +23,7 @@ public:
     void example(Trajectory pre_traj_utm, Ego* ego, const vector<vector<double> >& vehicles,
                  vector<double>& next_x, vector<double>& next_y);
 
-    void laneKeeping(Trajectory pre_traj_utm, Ego* ego, const vector<vector<vector<double> > >& predictions,
+    void laneKeeping(Trajectory pre_traj_utm, Ego* ego, const vector<Vehicle>* predictions,
                      vector<double>& next_x, vector<double>& next_y);
 
     Trajectory inference(Trajectory pre_traj_utm, Ego* ego, int lane, double ref_vel);

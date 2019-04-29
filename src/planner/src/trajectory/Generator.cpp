@@ -16,7 +16,7 @@ void Generator::example(Trajectory pre_traj_utm, Ego* ego, const vector<vector<d
     double car_d = ego->poFrenet()[1];
     double car_x = ego->poUTM()[0];
     double car_y = ego->poUTM()[1];
-    double car_yaw = deg2rad(ego->poUTM()[2]);
+    double car_yaw = ego->poUTM()[2];
     double ref_x = car_x;
     double ref_y = car_y;
     double ref_yaw = car_yaw;
@@ -49,10 +49,10 @@ void Generator::example(Trajectory pre_traj_utm, Ego* ego, const vector<vector<d
 
     //渐进式的速度加减
     if(too_close){
-        ref_vel_ -= .224;//.224是计算出的每0.02秒最大加速度
+        ref_vel_ -= .1;//.224是计算出的每0.02秒最大加速度
     }
-    else if(ref_vel_ < 49.5){
-        ref_vel_ += .224;
+    else if(ref_vel_ < 80/3.6){
+        ref_vel_ += .1;
     }
 
     Trajectory sparse; //稀疏的导航路点
@@ -116,7 +116,7 @@ void Generator::example(Trajectory pre_traj_utm, Ego* ego, const vector<vector<d
     for(int i = 0; i < 50 - pre_path_size; i++){
         //以汽车或者是前路径的最后一个点的位置和角度为坐标原点和x轴方向
         //在spline曲线上采样等间距点，保证速度不大于期望速度
-        double N = (target_dist/(0.02*ref_vel_/2.24));
+        double N = (target_dist/(0.02*ref_vel_));
         double x_point = x_add_on+(target_x)/N;
         double y_point = s(x_point);
 
@@ -138,19 +138,19 @@ void Generator::example(Trajectory pre_traj_utm, Ego* ego, const vector<vector<d
 }
 
 
-void Generator::laneKeeping(Trajectory pre_traj_utm, Ego* ego, const vector<vector<vector<double> > >& predictions,
+void Generator::laneKeeping(Trajectory pre_traj_utm, Ego* ego, const vector<Vehicle>* predictions,
                             vector<double>& next_x, vector<double>& next_y) {
     int pre_path_size = pre_traj_utm.points.size();
     double car_s = ego->poFrenet()[0];
     double car_d = ego->poFrenet()[1];
     double car_x = ego->poUTM()[0];
     double car_y = ego->poUTM()[1];
-    double car_yaw = deg2rad(ego->poUTM()[2]);
+    double car_yaw = ego->poUTM()[2];
     double ref_x = car_x;
     double ref_y = car_y;
     double ref_yaw = car_yaw;
-    double max_speed = 49.5;//道路允许的最大速度
-    int lane = map_->getCurrentLane(car_d);
+    double max_speed = 80;//道路允许的最大速度
+    int lane = map_->getLane(car_d);
     next_x.clear();
     next_y.clear();
 
@@ -159,15 +159,23 @@ void Generator::laneKeeping(Trajectory pre_traj_utm, Ego* ego, const vector<vect
     //先按照当前速度生成一条匀速轨迹
     Trajectory infer_1 = inference(pre_traj_utm, ego, lane, ego->velocity());
     //结合预测轨迹，碰撞检查
-    pair<int, double> col = collisionDetect(infer_1, predictions, ego);
+    pair<int, Vehicle> col = collisionDetect(infer_1, predictions, ego, map_);
     cout<<"collision at: "<<col.first<<endl;
-    //渐进式的速度加减
-    if(col.first < 50){
-        ref_vel_ -= .224;//.224是计算出的每0.02秒最大加速度
+    //要碰撞了
+    if(col.first < 100){
+        double veh_v = sqrt(col.second.v_x * col.second.v_x + col.second.v_y * col.second.v_y);
+        cout<<"veh_v: "<<veh_v<<endl;
+        cout<<"ego_v: "<<ref_vel_<<endl;
+        ref_vel_ = std::max(0.0, ref_vel_ - .6);//速度要大于0
+        if(col.first < 50)
+            ref_vel_ =  std::min(ref_vel_, veh_v);//最大跟前车速一样
     }
     else if(ref_vel_ < max_speed){
-        ref_vel_ += .224;
+        ref_vel_ += .3;
     }
+
+    if(ref_vel_ == 0)
+        return;
 
     Trajectory sparse; //稀疏的导航路点
     //如果剩下的点不多了，从车当前位置开始规划
@@ -227,7 +235,7 @@ void Generator::laneKeeping(Trajectory pre_traj_utm, Ego* ego, const vector<vect
     for(int i = 0; i < 50 - pre_path_size; i++){
         //以汽车或者是前路径的最后一个点的位置和角度为坐标原点和x轴方向
         //在spline曲线上采样等间距点，保证速度不大于期望速度
-        double N = (target_dist/(0.02*ref_vel_/2.24));
+        double N = (target_dist/(0.02*ref_vel_/3.6));
         double x_point = x_add_on+(target_x)/N;
         double y_point = s(x_point);
 
@@ -250,16 +258,6 @@ void Generator::laneKeeping(Trajectory pre_traj_utm, Ego* ego, const vector<vect
 
 //预测的时候，为了减少计算量，生成粗略的路径，每两个路点间隔1米
 Trajectory Generator::inference(Trajectory pre_traj_utm, Ego* ego, int lane, double ref_vel) {
-    int pre_path_size = pre_traj_utm.points.size();
-    double car_s = ego->poFrenet()[0];
-    double car_d = ego->poFrenet()[1];
-    double car_x = ego->poUTM()[0];
-    double car_y = ego->poUTM()[1];
-    double car_yaw = deg2rad(ego->poUTM()[2]);
-    double ref_x = car_x;
-    double ref_y = car_y;
-    double ref_yaw = car_yaw;
-
     Trajectory next_traj_utm;//预测轨迹
     next_traj_utm = getPath(ego, map_, lane, ego->velocity(), 0.1, 10);
     return next_traj_utm;

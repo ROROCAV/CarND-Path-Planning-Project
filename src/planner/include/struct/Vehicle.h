@@ -20,7 +20,9 @@ public:
     double d;
     double v_x;
     double v_y;
-    int age;
+
+    vector<vector<double> > prediction;//first是age,表示n个时刻之前的数据
+    vector<pair<int, vector<double> > > history;
 };
 
 #endif //PATH_PLANNING_VEHICLE_H

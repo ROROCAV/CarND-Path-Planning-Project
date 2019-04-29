@@ -4,11 +4,11 @@
 
 #include "struct/Ego.h"
 
-Ego::Ego(double x, double y, double yaw, double v, double s, double d): x_(x), y_(y), yaw_(yaw), s_(s), d_(d) {
+Ego::Ego(double x, double y, double yaw, double v, double s, double d): x_(x), y_(y), s_(s), d_(d) {
     acc_ = 0;
     length_ = 3;
     width_ = 2;
-
+    yaw_ = deg2rad(yaw);
 }
 
 Ego::~Ego() {}
@@ -28,9 +28,9 @@ Eigen::Vector2d Ego::poFrenet() {
 void Ego::updateState(double x, double y, double yaw, double v, double s, double d){
     x_ = x;
     y_ = y;
-    yaw_ = yaw;
+    yaw_ = deg2rad(yaw);//yaw的单位是弧度
     s_ = s;
     d_ = d;
-    v_ = v;
+    v_ = v*1.609/3.6;//单位: m/s
     //acc_ =
 }

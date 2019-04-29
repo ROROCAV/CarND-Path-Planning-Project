@@ -107,6 +107,6 @@ vector<double> Map::getSD(double x, double y, double theta) {
     return {frenet_s,frenet_d};
 }
 
-int Map::getCurrentLane(double d) {
+int Map::getLane(double d) {
     return floor(d /width_);
 }

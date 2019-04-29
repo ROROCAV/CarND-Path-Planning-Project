@@ -16,10 +16,10 @@ public:
 
     void update(vector<vector<double> > sensor_fusion);
 
-    vector<vector<vector<double> > > predict();
+    vector<Vehicle>* predict();
 private:
     Map* map_;
-    vector<vector<Vehicle> > vehicles_;
+    vector<Vehicle> vehicles_;
     int life_;
 };
 

@@ -17,21 +17,24 @@ Trajectory getPath(Ego* ego, Map* map, int lane, double ref_v, double resolution
     double pre_y = car_y - sin(car_yaw);
     double start_x = car_x;
     double start_y = car_y;
+    double yaw = car_yaw;
 
-    int loop = ceil(time / resolution);
+    if(ref_v <= 0)
+        return next_path;
+
+    int loop = ceil(time / resolution)/5;
     for(int l = 0; l < loop; l++){
         Trajectory sparse;
         //头两个点确定初始的路径弧度
         sparse.points.emplace_back(WayPoint(pre_x, pre_y));
         sparse.points.emplace_back(WayPoint(start_x, start_y));
-        double yaw = atan2((start_y - pre_y),(start_x - pre_x));
 
         //在Frenet坐标系下，从起点开始，每30m设置一个导航路点
         vector<double> sd = map->getSD(start_x, start_y, yaw);
         //4秒完全进入目标lane
-        vector<double> next_wp0 = map->getXY(sd[0] + 4 * ref_v, (0.5*map->width()+map->width()*lane));
-        vector<double> next_wp1 = map->getXY(sd[0] + (4+4) * ref_v, (0.5*map->width()+map->width()*lane));
-        vector<double> next_wp2 = map->getXY(sd[0] + (4+4+4) * ref_v, (0.5*map->width()+map->width()*lane));
+        vector<double> next_wp0 = map->getXY(sd[0] + std::max(3 * ref_v, 10.0), (0.5*map->width()+map->width()*lane));
+        vector<double> next_wp1 = map->getXY(sd[0] + std::max(3 * ref_v, 10.0)+30, (0.5*map->width()+map->width()*lane));
+        vector<double> next_wp2 = map->getXY(sd[0] + std::max(3 * ref_v, 10.0)+60, (0.5*map->width()+map->width()*lane));
 
         sparse.points.emplace_back(WayPoint(next_wp0[0], next_wp0[1]));
         sparse.points.emplace_back(WayPoint(next_wp1[0], next_wp1[1]));
@@ -78,6 +81,7 @@ Trajectory getPath(Ego* ego, Map* map, int lane, double ref_v, double resolution
         pre_y = next_path.points[next_path.points.size() - 2].y;
         start_x = next_path.points.back().x;
         start_y = next_path.points.back().y;
+        yaw = atan2((start_y - pre_y),(start_x - pre_x));
     }
     return next_path;
 }

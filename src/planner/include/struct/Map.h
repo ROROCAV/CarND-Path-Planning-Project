@@ -25,7 +25,7 @@ public:
 
     vector<double> getXY(double s, double d);
     vector<double> getSD(double x, double y, double theta);
-    int getCurrentLane(double d);
+    int getLane(double d);
 
 private:
     vector<double> x_;
