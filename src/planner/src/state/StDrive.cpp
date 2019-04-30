@@ -31,19 +31,24 @@ StDriveStart::~StDriveStart() {
 }
 
 sc::result StDriveStart::react(const EvSysTick& evt){
-    return transit<StDriveOnLane>();
+    return transit<StLaneKeep>();
 }
 
 /*---------------------------------------------------------------------------
- * StDriveOnLane
+ * StLaneKeep
  *---------------------------------------------------------------------------*/
-StDriveOnLane::StDriveOnLane(my_context ctx) : my_base(ctx), StBase<StDriveOnLane>(std::string("StDriveOnLane")) {
+StLaneKeep::StLaneKeep(my_context ctx) : my_base(ctx), StBase<StLaneKeep>(std::string("StLaneKeep")) {
 
 }
 
-StDriveOnLane::~StDriveOnLane() {}
+StLaneKeep::~StLaneKeep() {}
 
-sc::result StDriveOnLane::react(const EvSysTick&) {
+sc::result StLaneKeep::react(const EvSysTick&) {
     Planner& planner = context<Planner>();
+    Ego* ego = planner.ego;
+    Trajectory pre_path = *planner.pre_path;
+    vector<Vehicle>* predictions = planner.predictions;
+
+    planner.generator->laneKeeping(pre_path, ego, predictions, planner.next_path);
     return forward_event();
 }

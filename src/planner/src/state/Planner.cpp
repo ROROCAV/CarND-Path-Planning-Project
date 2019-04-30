@@ -15,7 +15,10 @@ void Planner::inputEnv(Trajectory *pre_path, vector<Vehicle> *predictions) {
 }
 
 void Planner::outputTrajectory(vector<double> &xs, vector<double> &ys) {
+    xs.clear();
+    ys.clear();
     for(auto pt:next_path.points){
-        xs.emplace_back(pt.x)
+        xs.emplace_back(pt.x);
+        ys.emplace_back(pt.y);
     }
 }

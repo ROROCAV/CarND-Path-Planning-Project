@@ -97,11 +97,11 @@ int main() {
             pre_traj_utm.points.back().s = end_path_s;
             pre_traj_utm.points.back().d = end_path_d;
           }
-          planner
+          planner->inputEnv(&pre_traj_utm, prediictions);
           /*规划*/
           planner->process_event(EvSysTick());//处理一次状态
-          generator->laneKeeping(pre_traj_utm, ego, prediictions, next_x_vals, next_y_vals);
-
+          //generator->laneKeeping(pre_traj_utm, ego, prediictions, next_x_vals, next_y_vals);
+          planner->outputTrajectory(next_x_vals, next_y_vals);
           json msgJson;
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;

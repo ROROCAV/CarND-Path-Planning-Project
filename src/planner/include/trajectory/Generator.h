@@ -24,7 +24,7 @@ public:
                  vector<double>& next_x, vector<double>& next_y);
 
     void laneKeeping(Trajectory pre_traj_utm, Ego* ego, const vector<Vehicle>* predictions,
-                     vector<double>& next_x, vector<double>& next_y);
+                     Trajectory& next_traj);
 
     Trajectory inference(Trajectory pre_traj_utm, Ego* ego, int lane, double ref_vel);
 

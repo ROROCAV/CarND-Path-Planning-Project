@@ -51,14 +51,14 @@ public:
 };
 
 /*---------------------------------------------------------------------------
- * StDriveOnLane
+ * StLaneKeep
  *---------------------------------------------------------------------------*/
-class StDriveOnLane : public sc::state< StDriveOnLane, StDrive >, StBase<StDriveOnLane> {
+class StLaneKeep : public sc::state< StLaneKeep, StDrive >, StBase<StLaneKeep> {
 public:
     //on enter
-    StDriveOnLane(my_context ctx);
+    StLaneKeep(my_context ctx);
     //on exit
-    virtual ~StDriveOnLane();
+    virtual ~StLaneKeep();
 
     //reactions
     sc::result react(const EvSysTick& evt);

@@ -15,7 +15,7 @@ void Generator::example(Trajectory pre_traj_utm, Ego* ego, const vector<vector<d
 
 
 void Generator::laneKeeping(Trajectory pre_traj_utm, Ego* ego, const vector<Vehicle>* predictions,
-                            vector<double>& next_x, vector<double>& next_y) {
+                            Trajectory& next_traj) {
     int pre_path_size = pre_traj_utm.points.size();
     double car_s = ego->poFrenet()[0];
     double car_d = ego->poFrenet()[1];
@@ -27,8 +27,6 @@ void Generator::laneKeeping(Trajectory pre_traj_utm, Ego* ego, const vector<Vehi
     double ref_yaw = car_yaw;
     double max_speed = 80/3.6;//道路允许的最大速度
     int lane = map_->getLane(car_d);
-    next_x.clear();
-    next_y.clear();
 
     if(pre_path_size > 0)
         car_s = pre_traj_utm.points.back().s;
@@ -36,12 +34,10 @@ void Generator::laneKeeping(Trajectory pre_traj_utm, Ego* ego, const vector<Vehi
     Trajectory infer_1 = inference(pre_traj_utm, ego, lane, ego->velocity());
     //结合预测轨迹，碰撞检查
     pair<int, Vehicle> col = collisionDetect(infer_1, predictions, ego, map_);
-    cout<<"collision at: "<<col.first<<endl;
+    //cout<<"collision at: "<<col.first<<endl;
     //要碰撞了
     if(col.first < 100){
         double veh_v = sqrt(col.second.v_x * col.second.v_x + col.second.v_y * col.second.v_y);
-        cout<<"veh_v: "<<veh_v<<endl;
-        cout<<"ego_v: "<<ref_vel_<<endl;
         ref_vel_ = std::max(0.0, ref_vel_ - .6);//速度要大于0
         if(col.first < 50)
             ref_vel_ =  std::min(ref_vel_, veh_v);//最大跟前车速一样
@@ -128,8 +124,7 @@ void Generator::laneKeeping(Trajectory pre_traj_utm, Ego* ego, const vector<Vehi
 
         next_traj_utm.points.emplace_back(WayPoint(x_point, y_point));
     }
-    next_x = next_traj_utm.xs();
-    next_y = next_traj_utm.ys();
+    next_traj = next_traj_utm;
 }
 
 //预测的时候，为了减少计算量，生成粗略的路径，每两个路点间隔1米
