@@ -30,7 +30,7 @@ public:
 
 private:
     Map* map_;
-    double ref_vel_;
+    double ref_vel_;//单位m/s
     int ref_lane_;
 };
 

@@ -12,6 +12,9 @@
 #include "struct/Trajectory.h"
 #include "struct/Ego.h"
 
+#include "state/planner.h"
+#include "state/StStop.h"
+
 
 // for convenience
 using nlohmann::json;
@@ -22,6 +25,7 @@ Ego* ego = nullptr;
 Map* map = nullptr;
 Predictor* predictor = nullptr;
 Generator* generator = nullptr;
+Planner* planner = nullptr;
 
 int main() {
   uWS::Hub h;
@@ -34,6 +38,9 @@ int main() {
   map = new Map(map_file);
   generator = new Generator(map);
   predictor = new Predictor(map, 2);
+  planner = Planner::instance(ego, map);
+  planner->initiate();//启动状态机
+  planner->process_event(EvActivate());//车辆启动
 
   vector<double>* map_xs = map->x();
   vector<double>* map_ys = map->y();
@@ -81,23 +88,24 @@ int main() {
            *   sequentially every .02 seconds
            */
           //TODO: realize your code here.
+          /*感知预处理*/
           ego->updateState(car_x, car_y, car_yaw, car_speed, car_s, car_d);
           predictor->update(sensor_fusion);
           vector<Vehicle>* prediictions = predictor->predict();
-
           Trajectory pre_traj_utm(previous_path_x, previous_path_y);
           if(pre_traj_utm.points.size()){
             pre_traj_utm.points.back().s = end_path_s;
             pre_traj_utm.points.back().d = end_path_d;
           }
+          planner
+          /*规划*/
+          planner->process_event(EvSysTick());//处理一次状态
           generator->laneKeeping(pre_traj_utm, ego, prediictions, next_x_vals, next_y_vals);
-          //generator->example(pre_traj_utm, ego, sensor_fusion, next_x_vals, next_y_vals);
+
           json msgJson;
           msgJson["next_x"] = next_x_vals;
           msgJson["next_y"] = next_y_vals;
-
           auto msg = "42[\"control\","+ msgJson.dump()+"]";
-
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
         }  // end "telemetry" if
       } else {
